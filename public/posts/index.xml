@@ -6,8 +6,15 @@
     <description>Recent content in Posts on My New Hugo Site</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 23 Feb 2025 22:19:21 +0530</lastBuildDate>
+    <lastBuildDate>Sat, 17 May 2025 20:28:19 +0530</lastBuildDate>
     <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Plotting Reaction Wheel Envelopes</title>
+      <link>http://localhost:1313/posts/rw-envelopes/</link>
+      <pubDate>Sat, 17 May 2025 20:28:19 +0530</pubDate>
+      <guid>http://localhost:1313/posts/rw-envelopes/</guid>
+      <description>&lt;p&gt;Reaction wheels are momentum-storage actuators that make spacecraft &lt;a href=&#34;https://youtu.be/PGNiXGX2nLU?si=aB0SFMN8PToa35LQ&#34;&gt;spin around&lt;/a&gt;. They&amp;rsquo;re highly precise motor-driven wheels that deliver torque along one axis. To achieve&#xA;3-axis control, you&amp;rsquo;d typically need atleast 3 of them placed orthogonally.&lt;/p&gt;&#xA;&lt;p&gt;However, reaction wheels are also one of the most failure-prone ADCS components in a spacecraft due to the fact that they&#xA;have moving parts. This is why they add a fourth wheel and reconfigure all the 4 wheels in a tetrahedral arrangement. This&#xA;gives extra reliability through redundancy (if one wheel fails, the other three can still deliver 3-axis control), and when&#xA;all 4 wheels function normally, the extent of control improves.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Inaugural Post</title>
       <link>http://localhost:1313/posts/inaugural-post/</link>
