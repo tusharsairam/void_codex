@@ -50,7 +50,186 @@ gives extra reliability through redundancy (if one wheel fails, the other three 
 all 4 wheels function normally, the extent of control improves.</p>
 <p>I came across this <a href="https://ntrs.nasa.gov/api/citations/20110015369/downloads/20110015369.pdf">paper</a> by F. L. Markley et. al. (2009) that describes the <strong>torque/momentum envelope</strong> of a reaction wheel array. I set out to write the code for it to
 visualize the envelopes myself and understand them better.</p>
-
+<p><img src="/images/torque_envelope_3_wheels.png" alt="Alt Text"></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> matplotlib.pyplot <span style="color:#66d9ef">as</span> plt
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> scipy.spatial <span style="color:#f92672">import</span> ConvexHull
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> itertools <span style="color:#f92672">import</span> product
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> np
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> numpy.typing <span style="color:#f92672">import</span> NDArray
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> Tuple
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> mpl_toolkits.mplot3d.art3d <span style="color:#f92672">import</span> Poly3DCollection
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> matplotlib <span style="color:#f92672">import</span> cm
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">generate_wheel_array</span>(theta: float, n: int) <span style="color:#f92672">-&gt;</span> NDArray:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;Given an angle of orientation, a reaction wheel array is generated
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Args:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        theta (float): Angle of orientation of the wheels in degrees
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        n (int): Number of reaction wheels
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Returns:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        NDArray: The wheel axes matrix
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    theta_rad <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>deg2rad(theta)
+</span></span><span style="display:flex;"><span>    s <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>sin(theta_rad)
+</span></span><span style="display:flex;"><span>    c <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>cos(theta_rad)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">3</span>:
+</span></span><span style="display:flex;"><span>        w <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([
+</span></span><span style="display:flex;"><span>            [s, s, s],
+</span></span><span style="display:flex;"><span>            [<span style="color:#ae81ff">0</span>, np<span style="color:#f92672">.</span>sqrt(<span style="color:#ae81ff">3</span>) <span style="color:#f92672">*</span> c<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>, <span style="color:#f92672">-</span>np<span style="color:#f92672">.</span>sqrt(<span style="color:#ae81ff">3</span>) <span style="color:#f92672">*</span> c<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>],
+</span></span><span style="display:flex;"><span>            [c, <span style="color:#f92672">-</span><span style="color:#ae81ff">0.5</span><span style="color:#f92672">*</span>c, <span style="color:#f92672">-</span><span style="color:#ae81ff">0.5</span><span style="color:#f92672">*</span>c]
+</span></span><span style="display:flex;"><span>        ])
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elif</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">4</span>:
+</span></span><span style="display:flex;"><span>        w <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([
+</span></span><span style="display:flex;"><span>            [s,  s,  s,  s],
+</span></span><span style="display:flex;"><span>            [<span style="color:#ae81ff">0</span>,  c,  <span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span>c],
+</span></span><span style="display:flex;"><span>            [c,  <span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span>c,  <span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>        ])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elif</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">6</span>:
+</span></span><span style="display:flex;"><span>        w <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([
+</span></span><span style="display:flex;"><span>            [s,  s,  s,  s,  s,  s],
+</span></span><span style="display:flex;"><span>            [<span style="color:#ae81ff">0</span>, np<span style="color:#f92672">.</span>sqrt(<span style="color:#ae81ff">3</span>) <span style="color:#f92672">*</span> c<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>, np<span style="color:#f92672">.</span>sqrt(<span style="color:#ae81ff">3</span>) <span style="color:#f92672">*</span> c<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">0</span>, <span style="color:#f92672">-</span>np<span style="color:#f92672">.</span>sqrt(<span style="color:#ae81ff">3</span>) <span style="color:#f92672">*</span> c<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>, <span style="color:#f92672">-</span>np<span style="color:#f92672">.</span>sqrt(<span style="color:#ae81ff">3</span>) <span style="color:#f92672">*</span> c<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>],
+</span></span><span style="display:flex;"><span>            [c, <span style="color:#ae81ff">0.5</span><span style="color:#f92672">*</span>c, <span style="color:#f92672">-</span><span style="color:#ae81ff">0.5</span><span style="color:#f92672">*</span>c, <span style="color:#f92672">-</span>c, <span style="color:#f92672">-</span><span style="color:#ae81ff">0.5</span><span style="color:#f92672">*</span>c, <span style="color:#ae81ff">0.5</span><span style="color:#f92672">*</span>c]
+</span></span><span style="display:flex;"><span>        ])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> w
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">max_wheel_torque</span>(v: NDArray, w: NDArray) <span style="color:#f92672">-&gt;</span> Tuple[NDArray, float]:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;Computes the maximum torque a wheel can offer
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Args:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        v (NDArray): Desired torque axis (1x3)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        w (NDArray): Torque distribution matrix (3xN)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Returns:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        Tuple[NDArray, float]: 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            Optimal scaled torque commands
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            Constant (gamma) used to calculate L-inf norm T_max
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            T_max = T_desired / gamma
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    epsilon <span style="color:#f92672">=</span> <span style="color:#ae81ff">1e-8</span>
+</span></span><span style="display:flex;"><span>    N <span style="color:#f92672">=</span> w<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Cycle through all i, j pairs of reaction wheels </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># until the correct face is identified in which the </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># L-inf norm resides. Slow for spacecraft implementation</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># TODO: Maybe Numba JIT speedup?</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(N<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> j <span style="color:#f92672">in</span> range(i<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, N):
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># w[:, i] is one wheel. Two wheels together are represented</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># by a face of the n-dim hypercube (for 3 wheels, it&#39;s a cube)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># X is the vector normal to this face/plane</span>
+</span></span><span style="display:flex;"><span>            X <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>cross(w[:, i], w[:, j])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># Psi is always bounded by unity</span>
+</span></span><span style="display:flex;"><span>            psi <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>sign(w<span style="color:#f92672">.</span>T <span style="color:#f92672">@</span> X)
+</span></span><span style="display:flex;"><span>            psi[i], psi[j] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>            z <span style="color:#f92672">=</span> w <span style="color:#f92672">@</span> psi
+</span></span><span style="display:flex;"><span>            d <span style="color:#f92672">=</span> v <span style="color:#f92672">@</span> X
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> d <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>                temp <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>cross(v, z)
+</span></span><span style="display:flex;"><span>                psi[i], psi[j] <span style="color:#f92672">=</span> (temp <span style="color:#f92672">@</span> np<span style="color:#f92672">.</span>column_stack([<span style="color:#f92672">-</span>w[:, j], w[:, i]])) <span style="color:#f92672">/</span> d
+</span></span><span style="display:flex;"><span>                gamma <span style="color:#f92672">=</span> (z <span style="color:#f92672">@</span> X) <span style="color:#f92672">/</span> d
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e"># No need to repeat the whole calculation if we&#39;re in the negative</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e"># Just flip the sign of both gamma and psi</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> gamma <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>                    gamma <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>gamma
+</span></span><span style="display:flex;"><span>                    psi <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>psi
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e"># If the scaled torques are less than 1 (small margin), go with </span>
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e"># this. Reject if greater than zero and look for other pairs</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> np<span style="color:#f92672">.</span>all(np<span style="color:#f92672">.</span>abs(psi[[i, j]]) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> epsilon):
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">return</span> psi, gamma
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">None</span>, <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">plot_torque_envelope</span>(w: NDArray, v: NDArray, max_torque: float):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;Graphs the torque envelope of an N-wheel system
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Args:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        w (NDArray): 3xN torque distribution matrix
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        max_torque (float): Maximum torque generated. This decides the boundaries
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    N <span style="color:#f92672">=</span> w<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># All possible combinations of maximum torques (+/- max)</span>
+</span></span><span style="display:flex;"><span>    torque_combos <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(list(product([<span style="color:#f92672">-</span>max_torque, max_torque], repeat<span style="color:#f92672">=</span>N)))
+</span></span><span style="display:flex;"><span>    torques <span style="color:#f92672">=</span> torque_combos <span style="color:#f92672">@</span> w<span style="color:#f92672">.</span>T
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    fig <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>figure()
+</span></span><span style="display:flex;"><span>    ax <span style="color:#f92672">=</span> fig<span style="color:#f92672">.</span>add_subplot(<span style="color:#ae81ff">111</span>, projection<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;3d&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ax<span style="color:#f92672">.</span>scatter(<span style="color:#f92672">*</span>torques<span style="color:#f92672">.</span>T, color<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;blue&#39;</span>, alpha<span style="color:#f92672">=</span><span style="color:#ae81ff">0.3</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># The convex hull of the N-dimensional hypercube generated</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># is where all N wheels are saturated either in the +ve or</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># -ve direction</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># NOTE: ConvexHull only draws the outer faces as triangles</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># and we only get edges part of the visible triangulation</span>
+</span></span><span style="display:flex;"><span>    hull <span style="color:#f92672">=</span> ConvexHull(torques)
+</span></span><span style="display:flex;"><span>    faces <span style="color:#f92672">=</span> [torques[simplex] <span style="color:#66d9ef">for</span> simplex <span style="color:#f92672">in</span> hull<span style="color:#f92672">.</span>simplices]
+</span></span><span style="display:flex;"><span>    colors <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> face <span style="color:#f92672">in</span> faces:
+</span></span><span style="display:flex;"><span>        centroid <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>mean(face, axis<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        dist <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>norm(v <span style="color:#f92672">-</span> centroid)
+</span></span><span style="display:flex;"><span>        norm_dist <span style="color:#f92672">=</span> dist <span style="color:#f92672">/</span> np<span style="color:#f92672">.</span>max(np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>norm(torques <span style="color:#f92672">-</span> v, axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>))
+</span></span><span style="display:flex;"><span>        colors<span style="color:#f92672">.</span>append(cm<span style="color:#f92672">.</span>inferno(<span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> norm_dist))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    poly <span style="color:#f92672">=</span> Poly3DCollection(faces, facecolors<span style="color:#f92672">=</span>(<span style="color:#ae81ff">0.5</span>, <span style="color:#ae81ff">0.5</span>, <span style="color:#ae81ff">0.5</span>, <span style="color:#ae81ff">0.5</span>), edgecolors<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;k&#39;</span>, alpha<span style="color:#f92672">=</span><span style="color:#ae81ff">0.7</span>)
+</span></span><span style="display:flex;"><span>    ax<span style="color:#f92672">.</span>add_collection(poly)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># for simplex in hull.simplices:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     pts = torques[simplex]</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     ax.plot(pts[:, 0], pts[:, 1], pts[:, 2], &#39;k-&#39;)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ax<span style="color:#f92672">.</span>set_xlabel(<span style="color:#e6db74">&#34;X Torque&#34;</span>)
+</span></span><span style="display:flex;"><span>    ax<span style="color:#f92672">.</span>set_ylabel(<span style="color:#e6db74">&#34;Y Torque&#34;</span>)
+</span></span><span style="display:flex;"><span>    ax<span style="color:#f92672">.</span>set_zlabel(<span style="color:#e6db74">&#34;Z Torque&#34;</span>)
+</span></span><span style="display:flex;"><span>    ax<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;Torque Envelope (L∞ norm)&#34;</span>)
+</span></span><span style="display:flex;"><span>    plt<span style="color:#f92672">.</span>tight_layout()
+</span></span><span style="display:flex;"><span>    plt<span style="color:#f92672">.</span>show()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Each column of w is a unit vector representing a wheel axis.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Here, we use three orthogonal wheels aligned with X, Y, and Z axes.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># So w is the 3x3 identity matrix — one wheel per principal axis.</span>
+</span></span><span style="display:flex;"><span>    w <span style="color:#f92672">=</span> generate_wheel_array(<span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">6</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># w = np.array([</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     [ 1,  1,  0,  0,  0, -1],</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     [ 1,  1,  0,  1, -1,  0],</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#     [ 0,  0,  1, -1,  0,  0]</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ]) / np.sqrt(3)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Torque direction vectors</span>
+</span></span><span style="display:flex;"><span>    v <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([<span style="color:#ae81ff">0.5</span>, <span style="color:#ae81ff">0.5</span>, <span style="color:#ae81ff">0.5</span>])  
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Outputs the optimal scaled torque vector and the constant</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># for computing the max torque generated by the system</span>
+</span></span><span style="display:flex;"><span>    psi, gamma <span style="color:#f92672">=</span> max_wheel_torque(v, w)
+</span></span><span style="display:flex;"><span>    print(psi, gamma)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> gamma <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        T_des <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>norm(v)
+</span></span><span style="display:flex;"><span>        T_max <span style="color:#f92672">=</span> T_des <span style="color:#f92672">/</span> gamma
+</span></span><span style="display:flex;"><span>        plot_torque_envelope(w, v, T_max)
+</span></span></code></pre></div>
 </article>
 
             </div>

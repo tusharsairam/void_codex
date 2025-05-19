@@ -4,3 +4,9 @@
 [submodule "themes/no-style-please"]
 	path = themes/no-style-please
 	url = https://github.com/hanwenguo/hugo-theme-nostyleplease.git
+[submodule "themes/hugo.386"]
+	path = themes/hugo.386
+	url = https://gitlab.com/jmfergeau/hugo.386
+[submodule "themes/terminal"]
+	path = themes/terminal
+	url = https://github.com/panr/hugo-theme-terminal.git

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-us"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="Over this weekend, I stumbled upon this fairly old research paper by F. L. Markley et. al. from NASA. This paper dives into developing algorithms for calculating
+what are called torque and momentum envelopes for reaction wheel arrays. I figured I could spend some time reading through this paper and implementing the envelope computation in Python.
+An envelope is a graph (often a 3D plot) that showcases the torque/angular momentum capabilities offered by an array of wheels. Typically in much of the spacecraft we know, a minimum of 3 reaction wheels are used. One to provide torque along one axis. This is sufficient to provide precise attitude control&hellip; until one of the wheels break down. Reaction wheels are unfortunately highly prone to failure and the spacecraft loses a degree of freedom when one decides to throw in the towel. This can jeopardize the science mission altogether. To reduce the chances of such failure, engineers bring a fourth wheel into the playground and rearrange the array of wheels. This introduces redundancy, so if one wheel gives up, the other three wheels will continue to provide 3-axis control. Some spacecraft even go for more, such as the Swift Gamma Ray Burst Explorer that uses 6 wheels.">  
+
+  <title>
+    
+      Reaction_wheel_envelopes
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.900100e9dbee2d56c58fac8bb717037cae7e26a9c36c29d2ff587bdd65f0cbbe510b41d81a3bb234919cdfdc7550d786b2fab70c8fc507772d732fe097106d12.css" integrity="sha512-kAEA6dvuLVbFj6yLtxcDfK5&#43;JqnDbCnS/1h73WXwy75RC0HYGjuyNJGc39x1UNeGsvq3DI/FB3ctcy/glxBtEg==" />
+  
+</head>
+<body a="auto">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+                <div class="post-meta">
+                    <a href="/">..</a>
+
+                    <p>
+                        <time datetime="2025-05-19 19:56:17 &#43;0530 IST">
+                            2025-05-19
+                        </time>
+                    </p>
+                </div>
+
+<article>
+    <h1>Reaction_wheel_envelopes</h1>
+
+    
+
+    <p>Over this weekend, I stumbled upon this fairly <a href="https://ntrs.nasa.gov/api/citations/20110015369/downloads/20110015369.pdf">old research paper</a> by F. L. Markley et. al. from NASA. This paper dives into developing algorithms for calculating
+what are called <strong>torque and momentum envelopes</strong> for reaction wheel arrays. I figured I could spend some time reading through this paper and implementing the envelope computation in Python.</p>
+<p><strong>An envelope is a graph (often a 3D plot) that showcases the torque/angular momentum capabilities offered by an array of wheels</strong>. Typically in much of the spacecraft we know, a minimum of 3 reaction wheels are used. One to provide torque along one axis. This is sufficient to provide precise attitude control&hellip; until one of the wheels break down. Reaction wheels are unfortunately highly prone to failure and the spacecraft loses a degree of freedom when one decides to throw in the towel. This can jeopardize the science mission altogether. To reduce the chances of such failure, engineers bring a fourth wheel into the playground and rearrange the array of wheels. This introduces redundancy, so if one wheel gives up, the other three wheels will continue to provide 3-axis control. Some spacecraft even go for more, such as the Swift Gamma Ray Burst Explorer that uses 6 wheels.</p>
+<p>Envelopes are useful to assess how helpful can a reaction wheel array be in terms of torque and/or angular momentum storage capabilities. Being able to develop these also helps design strategies for wheel desaturation, tells you how much torque authority is provided, and also gives you a picture of its limits. Great for sizing your wheels and planning movements that are within the prescribed limits of the array.</p>
+<p><img src="/void_codex/content/images/torque_envelope_3_wheels.png" alt="Torque Envelope of 3-wheel configuration"></p>
+
+</article>
+
+            </div>
+        </main>
+    </body></html>
